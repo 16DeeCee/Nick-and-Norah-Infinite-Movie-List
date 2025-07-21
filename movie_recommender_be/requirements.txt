@@ -1,0 +1,10 @@
+pandas
+matplotlib
+bs4
+requests
+tmdbv3api
+python-dotenv
+nltk
+scikit-learn
+fastapi
+uvicorn

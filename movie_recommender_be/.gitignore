@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# Environments
+.env
+
+ml-32m/
+preprocessed_data/
+raw_data/
+
+data_prep.ipynb
+data_prep2.ipynb
+data_preprocessing.ipynb
+embed_data.ipynb
+embeddings.npy
+faiss_index.idx
+pandas.ipynb
+ratings.ipynb
+tests.ipynb
+web_scraping.ipynb
