@@ -21,6 +21,7 @@ export type TPerson = {
 
 export type TMovieDetails = {
   movie: TMovieDesc
-  director: TPerson
+  director: TPerson[]
   cast: TPerson[]
+  recommendations: TMovie[]
 }

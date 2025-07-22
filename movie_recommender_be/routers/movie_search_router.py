@@ -32,7 +32,7 @@ class MovieDetails(BaseModel):
     movie: MovieDesc
     director: List[Crew]
     cast: List[Crew]
-    # recommendations: List[Movie]
+    recommendations: List[Movie]
 
 
 @router.get("/{movie_id}", response_model=MovieDetails)
@@ -47,7 +47,7 @@ async def search_movie(movie_id: str):
         "movie": movie_details,
         "director": movie_director,
         "cast": movie_cast,
-        # "recommendations": recommendations,
+        "recommendations": recommendations,
     }
 
 # @router.post("/artist")

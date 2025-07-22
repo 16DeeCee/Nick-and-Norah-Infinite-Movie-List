@@ -133,17 +133,17 @@ class SearchMovie:
         # Search for similar texts
         distances, indices = index.search(query_embedding, top_n)
 
-        data = pd.DataFrame({"index": indices[0][1:], "distances": distances[0]})
+        data = pd.DataFrame({"index": indices[0][1:], "distances": distances[0][1:]})
 
         data = data.join(movie_df.loc[data["index"], ["normalized_bayes_rating", "normalized_popularity"]].reset_index(drop=True)).reset_index(drop=True)
 
-        data["weighted_average"] = (data["distance"] * SIMILARITY_WEIGHTED_SCORE) + \
+        data["weighted_average"] = (data["distances"] * SIMILARITY_WEIGHTED_SCORE) + \
         (data["normalized_bayes_rating"] * RATING_WEIGHTED_SCORE) + \
         (data["normalized_popularity"] * POPULARITY_WEIGHTED_SCORE)
         
         data.sort_values(by="weighted_average", ascending=False, inplace=True)
 
-        return movie_df.loc[data["index"], :].to_dict(orient='records')
+        return movie_df.loc[data["index"], :][:10].to_dict(orient='records')
 
         # return data_df.loc[data["index"], :]
 
