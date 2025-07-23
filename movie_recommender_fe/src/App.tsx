@@ -14,7 +14,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Suspense fallback={<>...</>}> <HomePage /> </Suspense>} />
           <Route path='/movie/:movieId' element={<Suspense fallback={<>...</>}> <MoviePage /> </Suspense>} />
-          <Route path='/search/' element={<Suspense fallback={<>...</>}> <SearchPage /> </Suspense>} />
+          <Route path='/search' element={<Suspense fallback={<>...</>}> <SearchPage /> </Suspense>} />
         </Routes>
       <Footer />
     </>

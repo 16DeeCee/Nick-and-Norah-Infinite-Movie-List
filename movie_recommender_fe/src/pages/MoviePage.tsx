@@ -72,16 +72,15 @@ function MoviePage() {
   const [ movieDetails, setMovieDetails ] = useState<TMovieDetails | null>(null)
 
   useEffect(() => {
-    console.log('ayooo!')
     if (!movieId) return;
-    console.log('whyyyy!')
     
     api.get(`/movie/${movieId}`)
-      .then(res => {
-        setMovieDetails(res.data)
-        console.log(res.data)
-      })
-      .catch(err => console.log(err))
+    .then(res => {
+      setMovieDetails(res.data)
+      console.log(res.data)
+    })
+    .catch(err => console.log(err))
+    
   }, [movieId])
 
   return (
@@ -159,8 +158,7 @@ function MoviePage() {
       {movieDetails && (
         <div className='container mx-auto px-4 py-12'>
           <MovieCarousel 
-            description='More Like This' 
-            isNumbered={false}
+            description='More Like This'
             movieList={movieDetails.recommendations}
           />
         </div>

@@ -7,10 +7,12 @@ import numpy as np
 import os
 import pandas as pd
 import requests
+from fuzzywuzzy import process
 
 load_dotenv()
 
 movie_df = pd.read_csv("preprocessed_data/clean_movie_dataset.csv")
+movie_title_list = movie_df["title"].to_list()
 # model = SentenceTransformer("all-MiniLM-L6-v2")
 embeddings = np.load("embeddings.npy")
 index = faiss.read_index("faiss_index.idx")
@@ -37,17 +39,6 @@ class SearchMovie:
             return None
         
         movie_dict = movie_details.to_dict(orient="records")[0]
-
-        # movie_dict = movie_details[[
-        #     "id", 
-        #     "imdb_id",
-        #     "title", 
-        #     "release_year",
-        #     "rating",
-        #     "poster_path",
-        #     "overview",
-        #     "genres"
-        # ]].to_dict(orient="records")[0]
 
         return index, movie_dict
 
@@ -128,6 +119,7 @@ class SearchMovie:
         
         # Generate embedding for the query
         # query_embedding = model.encode([query_text], convert_to_numpy=True).astype(np.float32)
+
         query_embedding = np.array([embeddings[movie_idx]]).astype(np.float32)
         
         # Search for similar texts
@@ -161,3 +153,10 @@ class SearchMovie:
         # for i, idx in enumerate(indices[0]):
         #     movie_df.loc[idx, "movie_title"]
         #     print(f"{i + 1}: {movie_df.loc[idx, "movie_title"]} (Distance: {distances[0][i]:.4f})")
+
+    @staticmethod
+    def search_movies(query: str):
+        search_results = process.extractBests(query, movie_title_list, limit=20)
+        title_results = [result[0] for result in search_results]
+
+        return movie_df.loc[movie_df["title"].isin(title_results), :].to_dict(orient="records")

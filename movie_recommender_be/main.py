@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from routers import movie_router, search_router
 import uvicorn
-from routers import movie_search_router
 
 app = FastAPI(root_path="/")
 
@@ -13,7 +13,8 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-app.include_router(movie_search_router.router)
+app.include_router(movie_router.router)
+app.include_router(search_router.router)
 
 if "__name__" == "__main__":
     uvicorn.run("main:app", host="localhost", port=9991, reload=True)
