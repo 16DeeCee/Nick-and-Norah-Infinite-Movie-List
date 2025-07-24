@@ -23,9 +23,3 @@ async def get_movie_details(movie_id: str):
         "cast": movie_cast,
         "recommendations": recommendations,
     }
-
-# @router.post("/artist")
-# async def search_artist(artist: Artist):
-#     artist_details = SearchMovie.search_artist(artist.artist_id)
-
-#     return artist_details

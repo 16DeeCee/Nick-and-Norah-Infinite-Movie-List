@@ -19,6 +19,13 @@ export type TPerson = {
   character?: string
 }
 
+export type TArtist = TPerson & {
+  biography: string
+  birthdate: string
+  place_of_birth: string
+  deathday?: string
+}
+
 export type TMovieDetails = {
   movie: TMovieDesc
   director: TPerson[]

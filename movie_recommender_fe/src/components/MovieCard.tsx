@@ -52,7 +52,7 @@ function MovieCard( {movie, isNumbered = false, index = 0, children } : TMovieCa
             <span>{movie.release_year}</span>
             <div className='flex items-center space-x-1'>
               <Star className='h-3 w-3 fill-yellow-400 text-yellow-400' />
-              <span>{movie.rating}</span>
+              <span>{movie.rating.toFixed(2)}</span>
             </div>
           </div>
           {children}

@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
-# from sentence_transformers import SentenceTransformer
+from rapidfuzz import process
+from rapidfuzz.distance import Levenshtein
 from tmdbv3api import TMDb, Movie, Person
 
 import faiss
@@ -7,13 +8,12 @@ import numpy as np
 import os
 import pandas as pd
 import requests
-from fuzzywuzzy import process
+
 
 load_dotenv()
 
 movie_df = pd.read_csv("preprocessed_data/clean_movie_dataset.csv")
 movie_title_list = movie_df["title"].to_list()
-# model = SentenceTransformer("all-MiniLM-L6-v2")
 embeddings = np.load("embeddings.npy")
 index = faiss.read_index("faiss_index.idx")
 
@@ -49,61 +49,73 @@ class SearchMovie:
 
         return response.json()
     
-
-    # @staticmethod
-    # def search_tmdb_id(movie_title: str, year: int):
-    #     id = np.nan
-
-    #     try:
-    #         search = movie.search(str(movie_title))
-
-    #         for result in search["results"]:
-    #             release_year = int(result["release_date"].split("-")[0])
-
-    #             if year == release_year:
-    #                 id = int(result["id"])
-    #                 break
-    #         # id = search
-    #     except:
-    #         pass
-        
-    #     return id
-    
     @staticmethod
     def search_movie_crew(id):
-        key=api_key
-        url = f"https://api.themoviedb.org/3/movie/{id}/credits?api_key={key}"
+        url = f"https://api.themoviedb.org/3/movie/{id}/credits?api_key={api_key}"
         
         response = requests.get(url).json()
 
-        director_list = [{
-            "id": director["id"],
-            "name": director["name"],
-            "profile_path": director["profile_path"],
-        } for director in response.get("crew", []) if director["job"] == "Director"]
+        director_list = []
+        cast_list = []
 
-        cast_list = [{
-            "id": cast["id"], 
-            "name": cast["name"], 
-            "character": cast["character"], 
-            "profile_path": "https://image.tmdb.org/t/p/w185" + cast["profile_path"],
-        } for cast in response.get("cast", [])[:6]]
+        for director in response.get("crew", []):
+            if director["job"] == "Director":
+                try:
+                    director_list.append({
+                        "id": director["id"],
+                        "name": director["name"],
+                        "profile_path": "https://image.tmdb.org/t/p/w185" + director["profile_path"],
+                    })
+                except:
+                    director_list.append({"id": director["id"], "name": director["name"]})
+
+
+        for cast in response.get("cast", [])[:6]:
+            if cast.get("profile_path"):
+                cast_list.append({
+                    "id": cast["id"], 
+                    "name": cast["name"],
+                    "character": cast["character"], 
+                    "profile_path": "https://image.tmdb.org/t/p/w185" + cast["profile_path"],
+                })
+            else:
+                cast_list.append({
+                    "id": cast["id"], 
+                    "name": cast["name"],
+                    "character": cast["character"],
+                })
+
+        # director_list = [{
+        #     "id": director["id"],
+        #     "name": director["name"],
+        #     "profile_path": "https://image.tmdb.org/t/p/w185" + director.get("profile_path", ""),
+        # } for director in response.get("crew", []) if director["job"] == "Director"]
+
+        # cast_list = [{
+        #     "id": cast["id"], 
+        #     "name": cast["name"],
+        #     "character": cast["character"], 
+        #     "profile_path": "https://image.tmdb.org/t/p/w185" + cast["profile_path"],
+        # } for cast in response.get("cast", [])[:6]]
 
         return director_list, cast_list
     
+    @staticmethod
     def search_artist(id):
         artist = person.details(id)
 
-        artist_dict = {
-            "biography": artist["biography"],
-            "birthdate": artist["birthday"],
-            "place_of_birth": artist["place_of_birth"],
-        }
+        # artist_dict = {
+        #     "biography": artist["biography"],
+        #     "birthdate": artist["birthday"],
+        #     "place_of_birth": artist["place_of_birth"],
+        # }
 
-        if artist["deathday"]:
-            artist_dict["deathday"] = artist["deathday"]
+        # if artist["deathday"]:
+        #     artist_dict["deathday"] = artist["deathday"]
 
-        return artist_dict
+        # return artist_dict
+
+        return artist
 
     @staticmethod
     def search_video(id):
@@ -116,10 +128,6 @@ class SearchMovie:
     
     @staticmethod
     def recommend(movie_idx, top_n=31):
-        
-        # Generate embedding for the query
-        # query_embedding = model.encode([query_text], convert_to_numpy=True).astype(np.float32)
-
         query_embedding = np.array([embeddings[movie_idx]]).astype(np.float32)
         
         # Search for similar texts
@@ -127,7 +135,10 @@ class SearchMovie:
 
         data = pd.DataFrame({"index": indices[0][1:], "distances": distances[0][1:]})
 
-        data = data.join(movie_df.loc[data["index"], ["normalized_bayes_rating", "normalized_popularity"]].reset_index(drop=True)).reset_index(drop=True)
+        data = data.join(movie_df.loc[
+            data["index"], 
+            ["normalized_bayes_rating", "normalized_popularity"]
+        ].reset_index(drop=True))
 
         data["weighted_average"] = (data["distances"] * SIMILARITY_WEIGHTED_SCORE) + \
         (data["normalized_bayes_rating"] * RATING_WEIGHTED_SCORE) + \
@@ -137,26 +148,19 @@ class SearchMovie:
 
         return movie_df.loc[data["index"], :][:10].to_dict(orient='records')
 
-        # return data_df.loc[data["index"], :]
-
-        # selected_movies = movie_df.loc[indices[0][0:], ["title", "poster_path"]].to_dict(orient='records')
-
-        # return selected_movies
-
-        # result_dict = [row.to_dict() for _, row in selected_movies.iterrows()]
-
-        # return result_dict
-        
-        # Display recommendations
-        # print(f"Query: {query_text}\n")
-        # print("Recommendations:")
-        # for i, idx in enumerate(indices[0]):
-        #     movie_df.loc[idx, "movie_title"]
-        #     print(f"{i + 1}: {movie_df.loc[idx, "movie_title"]} (Distance: {distances[0][i]:.4f})")
 
     @staticmethod
     def search_movies(query: str):
-        search_results = process.extractBests(query, movie_title_list, limit=20)
-        title_results = [result[0] for result in search_results]
+        search_results = process.extract(
+            query, 
+            movie_title_list, 
+            scorer=Levenshtein.normalized_distance, 
+            processor=lambda x: x.lower(), 
+            limit=15
+        )
 
-        return movie_df.loc[movie_df["title"].isin(title_results), :].to_dict(orient="records")
+        search_index = [result[2] for result in search_results]
+        movie_results_df = movie_df.iloc[search_index]
+        movie_results_df.loc[:, "genres"] = movie_results_df["genres"].apply(lambda x: x.split(", "))
+
+        return movie_results_df.to_dict(orient="records")

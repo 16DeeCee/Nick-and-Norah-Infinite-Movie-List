@@ -21,7 +21,6 @@ import type { TMovieDesc } from '@/types/movie.types';
 
 
 type SelectProps = ComponentProps<typeof Select>
-type TString = string
 
 
 function generateYear(from = 1960): string[] {
@@ -114,7 +113,7 @@ const ListResults = ({ movieResults } : { movieResults: TMovieDesc[] }) => {
                   </div>
                   <div className='flex items-center space-x-1'>
                     <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
-                    <span className='font-medium'>{movie.rating}</span>
+                    <span className='font-medium'>{movie.rating.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className='flex flex-wrap gap-1'>
@@ -141,11 +140,10 @@ const ListResults = ({ movieResults } : { movieResults: TMovieDesc[] }) => {
 
 
 function SearchPage() {
-  // const [ searchResults, setSearchResults ] = useState<TMovie[] | []>([])
   const [ searchResults, setSearchResults ] = useState<TMovieDesc[] | []>([]);
-  const [ sortByFilter, setSortByFilter ] = useState<TString | 'Relevance'>('Relevance');
-  const [ genreFilter, setGenreFilter ] = useState<TString | 'All Genres'>('All Genres');
-  const [ yearFilter, setYearFilter ] = useState<TString | 'All Years'>('All Years');
+  const [ sortByFilter, setSortByFilter ] = useState<string | 'Relevance'>('Relevance');
+  const [ genreFilter, setGenreFilter ] = useState<string | 'All Genres'>('All Genres');
+  const [ yearFilter, setYearFilter ] = useState<string | 'All Years'>('All Years');
   const [ viewMode, setViewMode ] = useState<'grid' | 'list'>('grid');
 
   const [ searchParams ] = useSearchParams();
@@ -156,12 +154,41 @@ function SearchPage() {
 
     api.get(`/search?query=${encodeURIComponent(query)}`)
     .then(res => {
-      setSearchResults(res.data)
-      console.log(res.data)
+      setSearchResults(res.data);
     })
-    .catch(err => console.log(err))
+    .catch(err => console.log(err));
 
   }, [query])
+
+  const filteredResults = () => {
+    let results = [...searchResults]
+    
+    switch (sortByFilter) {
+      case 'Rating':
+        results.sort((a, b) => b.rating - a.rating)
+        break;
+      case 'Year':
+        results.sort((a, b) => b.release_year - a.release_year)
+        break;
+      case 'Title':
+        results.sort((a, b) => a.title.localeCompare(b.title))
+        break;
+      default:
+        break;
+    };
+
+    if (genreFilter !== 'All Genres') {
+      results = results.filter((movie) => movie.genres.some((g) => g.toLowerCase() === genreFilter.toLowerCase()))
+    };
+
+    if (yearFilter !== 'All Years') {
+      results = results.filter((movie) => movie.release_year === +yearFilter)
+    };
+
+    console.log("ayooo")
+    return results
+
+  }
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -171,7 +198,7 @@ function SearchPage() {
         <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
           <div>
             <h2 className='text-2xl font-bold'>Search Results for {query}</h2>
-            <p>{searchResults.length} {searchResults.length <= 1 ? 'movie' : 'movies'} found</p> 
+            <p>{filteredResults.length} {filteredResults.length <= 1 ? 'movie' : 'movies'} found</p> 
           </div>
           <div className='space-x-2'>
             <Button variant={viewMode === 'grid' ? 'default' : 'outline'} size='sm' onClick={() => setViewMode('grid')}>
@@ -213,9 +240,9 @@ function SearchPage() {
           <ErrorText primaryText='No movies found' secondaryText='Try adjusting your search terms or filters' /> 
         ) : (
           viewMode === 'grid' ? (
-            <GridResults movieResults={searchResults} />
+            <GridResults movieResults={filteredResults()} />
           ) : (
-            <ListResults movieResults={searchResults} />
+            <ListResults movieResults={filteredResults()} />
           )
         )}
       </div>
