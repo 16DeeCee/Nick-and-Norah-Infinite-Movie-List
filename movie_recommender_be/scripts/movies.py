@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
+from models.movie_models import Crew
 from rapidfuzz import process
 from rapidfuzz.distance import Levenshtein
 from tmdbv3api import TMDb, Movie, Person
+from typing import List, Dict, Tuple
 
 import faiss
 import numpy as np
@@ -30,7 +32,7 @@ RATING_WEIGHTED_SCORE = 0.20
 
 class SearchMovie:
     @staticmethod
-    def search_movie_index(movie_id: str):
+    def search_movie_index(movie_id: str) -> Tuple[int, Dict[str, str]]:
         movie_details = movie_df.loc[movie_df["imdb_id"] == movie_id]
 
         try:
@@ -42,15 +44,9 @@ class SearchMovie:
 
         return index, movie_dict
 
-    @staticmethod
-    def search_movie_in_tmdb(id):
-        key = api_key
-        response = requests.get(f"https://api.themoviedb.org/3/movie/{id}?api_key={key}")
 
-        return response.json()
-    
     @staticmethod
-    def search_movie_crew(id):
+    def search_movie_crew(id: int) -> Tuple[List[Crew], List[Crew]]:
         url = f"https://api.themoviedb.org/3/movie/{id}/credits?api_key={api_key}"
         
         response = requests.get(url).json()
@@ -85,37 +81,24 @@ class SearchMovie:
                     "character": cast["character"],
                 })
 
-        # director_list = [{
-        #     "id": director["id"],
-        #     "name": director["name"],
-        #     "profile_path": "https://image.tmdb.org/t/p/w185" + director.get("profile_path", ""),
-        # } for director in response.get("crew", []) if director["job"] == "Director"]
-
-        # cast_list = [{
-        #     "id": cast["id"], 
-        #     "name": cast["name"],
-        #     "character": cast["character"], 
-        #     "profile_path": "https://image.tmdb.org/t/p/w185" + cast["profile_path"],
-        # } for cast in response.get("cast", [])[:6]]
-
         return director_list, cast_list
+    
     
     @staticmethod
     def search_artist(id):
         artist = person.details(id)
 
-        # artist_dict = {
-        #     "biography": artist["biography"],
-        #     "birthdate": artist["birthday"],
-        #     "place_of_birth": artist["place_of_birth"],
-        # }
+        artist_dict = {
+            "biography": artist["biography"],
+            "birthdate": artist["birthday"],
+            "place_of_birth": artist["place_of_birth"],
+        }
 
-        # if artist["deathday"]:
-        #     artist_dict["deathday"] = artist["deathday"]
+        if artist.get("deathday"):
+            artist_dict["deathday"] = artist["deathday"]
 
-        # return artist_dict
-
-        return artist
+        return artist_dict
+    
 
     @staticmethod
     def search_video(id):
@@ -126,8 +109,9 @@ class SearchMovie:
 
         return response
     
+    
     @staticmethod
-    def recommend(movie_idx, top_n=31):
+    def recommend(movie_idx: int, top_n: int = 31) -> List[Dict[str, str]]:
         query_embedding = np.array([embeddings[movie_idx]]).astype(np.float32)
         
         # Search for similar texts
@@ -150,7 +134,7 @@ class SearchMovie:
 
 
     @staticmethod
-    def search_movies(query: str):
+    def search_movies(query: str) -> List[Dict[str, str]]:
         search_results = process.extract(
             query, 
             movie_title_list, 

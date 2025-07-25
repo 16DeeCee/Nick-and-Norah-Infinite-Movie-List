@@ -24,3 +24,9 @@ class MovieDetails(BaseModel):
     director: List[Crew]
     cast: List[Crew]
     recommendations: List[Movie]
+
+class ArtistDetails(BaseModel):
+    biography: str
+    birthdate: str
+    place_of_birth: str
+    deathday: Optional[str] = None

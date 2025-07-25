@@ -149,7 +149,11 @@ const mostRecentList = [
   }
 ]
 
-function HomePage() {
+type THomePageProps = {
+  handleInputFocus: () => void
+}
+
+function HomePage({ handleInputFocus }: THomePageProps) {
   return (
     <>
       <section className='relative bg-gradient-to-r from-background to-muted/20'>
@@ -166,12 +170,10 @@ function HomePage() {
                   <span>Explore Featured</span>
                 </Button>
               </a>
-              <a href=''>
-                <Button size='lg' variant='outline'>
-                  <Search className='h-4 w-4' />
-                  <span>Search Movies</span>
-                </Button>
-              </a>
+              <Button size='lg' variant='outline' onClick={handleInputFocus}>
+                <Search className='h-4 w-4' />
+                <span>Search Movies</span>
+              </Button>
             </div>
           </div>
         </div>

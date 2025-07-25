@@ -4,8 +4,13 @@ import { Search } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import type { KeyboardEvent, ChangeEvent } from 'react';
+import type { RefObject } from 'react';
 
-function Header() {
+type THeaderProps = {
+  inputRef: RefObject<HTMLInputElement | null>
+}
+
+function Header({ inputRef } : THeaderProps) {
   const [ searchInput, setSearchInput ] = useState<string>('')
   const navigate = useNavigate()
 
@@ -36,7 +41,8 @@ function Header() {
                 text-muted-foreground h-4 w-4' 
               />
               <Input 
-                placeholder='Search a movie' className='pl-10 w-full' 
+                placeholder='Search a movie' className='pl-10 w-full'
+                ref={inputRef}
                 value={searchInput}
                 onChange={e => handleInput(e)}
                 onKeyDown={e => handleSearchEnter(e)} 

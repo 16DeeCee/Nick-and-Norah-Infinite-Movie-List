@@ -4,6 +4,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import ErrorText from '@/components/ErrorText';
 import { Filter, Grid, List, Star, Play } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import MovieCard from '@/components/MovieCard';
 import { 
   Select, 
@@ -14,8 +15,6 @@ import {
  } from '@/components/ui/select';
 import { useEffect, useState } from 'react';
 
-import { Link, useSearchParams } from 'react-router-dom';
-
 import type { ComponentProps } from 'react';
 import type { TMovieDesc } from '@/types/movie.types';
 
@@ -23,7 +22,7 @@ import type { TMovieDesc } from '@/types/movie.types';
 type SelectProps = ComponentProps<typeof Select>
 
 
-function generateYear(from = 1960): string[] {
+function generateYear(from = 1921): string[] {
   const currentYear = new Date().getFullYear()
   const years = []
 

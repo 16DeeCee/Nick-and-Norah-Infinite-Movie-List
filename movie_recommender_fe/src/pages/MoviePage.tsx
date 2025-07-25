@@ -6,11 +6,11 @@ import { Card } from '@/components/ui/card';
 import { Heart, Play, Star } from 'lucide-react';
 import MovieCarousel from '@/components/MovieCarousel';
 import { Separator } from '@/components/ui/separator';
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import type { TPerson, TMovieDetails } from '../types/movie.types';
+import ArtistDialogBox from '@/components/ArtistDialogBox';
 
 
 const DisplayGenre = ({ genres } : { genres: string[] }) => {
@@ -28,7 +28,7 @@ const DisplayGenre = ({ genres } : { genres: string[] }) => {
 
 const ImageAvatar = ({ person } : { person: TPerson }) => {
   return (
-    <div className='cursor-pointer group'>
+    <>
       <Avatar className='w-20 h-20 mx-auto mb-2 group-hover:scale-105 transition-transform'>
         <AvatarImage src={person.profile_path || '/placeholder.svg'} alt={person.name} />
         <AvatarFallback>{person.name.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
@@ -41,7 +41,7 @@ const ImageAvatar = ({ person } : { person: TPerson }) => {
           <p className='text-xs text-muted-foreground'>{person.character}</p>
         )}
       </div>
-    </div>
+    </>
   )
 }
 
@@ -50,7 +50,11 @@ const CrewAvatars = ({ crew } : { crew: TPerson[] }) => {
   return (
     <>
       {crew.map((cast: TPerson) => (
-        <ImageAvatar key={cast.id} person={cast} />
+        <ArtistDialogBox key={cast.id} crew={cast}>
+          <div className='cursor-pointer group'>
+            <ImageAvatar person={cast} />
+          </div>
+        </ArtistDialogBox>
       ))}
     </>
   )
@@ -59,16 +63,6 @@ const CrewAvatars = ({ crew } : { crew: TPerson[] }) => {
 
 function MoviePage() {
   const { movieId } = useParams();
-  // const [ movieDetails, setMovieDetails] = useState<TMovieDetails>({
-  //   id: 43423,
-  //   title: 'Dune: Part Two',
-  //   release_year: 2024,
-  //   rating: 8.8,
-  //   genres: ['Science Fiction', 'Adventure', 'Drama'],
-  //   overview: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
-  //   poster_path: 'https://image.tmdb.org/t/p/w500/cBDoFHJVcZqAonkTyhN9sMEggi5.jpg'
-  //   // poster_path: '/'
-  // });
   const [ movieDetails, setMovieDetails ] = useState<TMovieDetails | null>(null)
 
   useEffect(() => {
@@ -76,10 +70,11 @@ function MoviePage() {
     
     api.get(`/movie/${movieId}`)
     .then(res => {
-      setMovieDetails(res.data)
-      console.log(res.data)
+      if (res.data) setMovieDetails(res.data)
     })
     .catch(err => console.log(err))
+
+    window.scrollTo(0, 0)
     
   }, [movieId])
 
@@ -98,7 +93,7 @@ function MoviePage() {
                   <div className='flex items-center space-x-4'>
                       <div className='flex items-center space-x-1'>
                         <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
-                        <span className='font-medium'>{movieDetails.movie.rating}</span>
+                        <span className='font-medium'>{movieDetails.movie.rating.toFixed(2)}</span>
                       </div>
                       <div className='flex space-x-2'>
                         <DisplayGenre genres={movieDetails.movie.genres} />
