@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 
 import type { TPerson, TMovieDetails } from '../types/movie.types';
 import ArtistDialogBox from '@/components/ArtistDialogBox';
+import MovieSkeleton from '@/components/skeletons/MovieSkeleton';
 
 
 const DisplayGenre = ({ genres } : { genres: string[] }) => {
@@ -67,6 +68,8 @@ function MoviePage() {
 
   useEffect(() => {
     if (!movieId) return;
+
+    setMovieDetails(null)
     
     api.get(`/movie/${movieId}`)
     .then(res => {
@@ -80,9 +83,10 @@ function MoviePage() {
 
   return (
     <>
+      { movieDetails ? (
+      <>
       <section className='relative'>
         <div className='container mx-auto px-4 py-12'>
-          { movieDetails && (
             <div className='grid md:grid-cols-2 gap-8 items-center'>
               <div className='space-y-6'>
 
@@ -91,13 +95,13 @@ function MoviePage() {
                   <Badge variant='secondary'>{movieDetails.movie.release_year}</Badge>
                   <h2 className='text-4xl font-bold'>{movieDetails.movie.title}</h2>
                   <div className='flex items-center space-x-4'>
-                      <div className='flex items-center space-x-1'>
-                        <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
-                        <span className='font-medium'>{movieDetails.movie.rating.toFixed(2)}</span>
-                      </div>
-                      <div className='flex space-x-2'>
-                        <DisplayGenre genres={movieDetails.movie.genres} />
-                      </div>
+                    <div className='flex items-center space-x-1'>
+                      <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
+                      <span className='font-medium'>{movieDetails.movie.rating.toFixed(2)}</span>
+                    </div>
+                    <div className='flex space-x-2'>
+                      <DisplayGenre genres={movieDetails.movie.genres} />
+                    </div>
                   </div>
                 </div>
                 <p className='text-muted-foreground text-lg leading-relaxed'>
@@ -143,20 +147,21 @@ function MoviePage() {
                 </Card>
               </div>
             </div>
-          )}
         </div>
       </section>
 
       <Separator />
       
       {/* Recommendation Section */}
-      {movieDetails && (
-        <div className='container mx-auto px-4 py-12'>
-          <MovieCarousel 
-            description='More Like This'
-            movieList={movieDetails.recommendations}
-          />
-        </div>
+      <div className='container mx-auto px-4 py-12'>
+        <MovieCarousel 
+          description='More Like This'
+          movieList={movieDetails.recommendations}
+        />
+      </div>
+      </>
+      ) : ( 
+        <MovieSkeleton />
       )}
     </>
   )
