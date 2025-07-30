@@ -3,17 +3,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Globe } from 'lucide-react';
 import { 
   Dialog, 
-  DialogContent, 
+  DialogContent,
   DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState, useEffect } from 'react';
 
 import type { ReactNode } from 'react';
 import type { TArtist, TPerson } from '@/types/movie.types';
+import { BiographySkeleton, PersonalInfoSkeleton } from './skeletons/DialogBoxSkeleton';
 
 type TDialogBoxProps = {
   crew: TPerson
@@ -22,6 +23,7 @@ type TDialogBoxProps = {
 
 function ArtistDialogBox({ crew, children } : TDialogBoxProps) {
   const [ isOpen, setIsOpen ] = useState<boolean>(false)
+  // const [ isLoading, setIsLoading ] = useState<boolean>(true)
   const [ artistInfo, setArtistInfo ] = useState<TArtist | null>(null)
   
   useEffect(() => {
@@ -30,10 +32,12 @@ function ArtistDialogBox({ crew, children } : TDialogBoxProps) {
 
     api.get(`/search/artist/${crew.id}`)
       .then(res => {
-        if (res.data) setArtistInfo({...crew, ...res.data})
-        console.log({...crew, ...res.data})
+        if (res.data) 
+          setArtistInfo({...crew, ...res.data})
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log(err))
+      // .finally(() => setIsLoading)
+
 
   }, [crew, isOpen])
 
@@ -48,18 +52,28 @@ function ArtistDialogBox({ crew, children } : TDialogBoxProps) {
             <DialogHeader>
               <DialogTitle>
                   <span className='text-2xl font-semibold'>{crew.name}</span>
-                  {crew.character && <p className='text-lg text-muted-foreground'>as {crew.character}</p>}
-                  {artistInfo && (
+                  {crew.character && (
+                    <p className='text-lg text-muted-foreground'>as {crew.character}</p>
+                  )}
+                  {artistInfo? (
                     <div className='flex flex-col space-y-2 mt-3 text-sm text-muted-foreground'>
                       <div className='flex items-center space-x-2'>
                         <Calendar className='h-4 w-4' />
-                        <span>{artistInfo.birthdate}{artistInfo.deathday && ` — ${artistInfo.deathday}`}</span>
+                        <span>
+                          {!artistInfo.birthdate? (
+                            'No information provided'
+                          ) :(
+                            `${artistInfo.birthdate} ${artistInfo.deathday? ` — ${artistInfo.deathday}` : ''}`
+                          )}
+                        </span>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Globe className='h-4 w-4' />
                         <span>{artistInfo.place_of_birth}</span>
                       </div>
                     </div>
+                  ) : (
+                    <PersonalInfoSkeleton />
                   )}
               </DialogTitle>
               <DialogDescription />
@@ -73,8 +87,16 @@ function ArtistDialogBox({ crew, children } : TDialogBoxProps) {
           </div>
         </div>
         <ScrollArea className='h-[30vh] md:h-[50vh] pr-4'>
-          <h4 className='font-semibold mb-3'>Biography</h4>
-          {artistInfo && <p className='text-sm text-muted-foreground leading-relaxed'>{artistInfo.biography}</p>}
+          {artistInfo? (
+            <>
+              <h4 className='font-semibold mb-3'>Biography</h4>
+              <p className='text-sm text-muted-foreground leading-relaxed'>
+                {artistInfo.biography? artistInfo.biography : 'No information provided'}
+              </p>
+            </>
+          ) : (
+            <BiographySkeleton />
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>

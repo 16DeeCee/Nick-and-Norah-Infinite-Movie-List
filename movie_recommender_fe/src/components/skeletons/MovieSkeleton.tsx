@@ -8,21 +8,23 @@ function MovieSkeleton() {
           <div className='grid md:grid-cols-2 gap-8 items-center'>
             <div className='space-y-6'>
 
+              {/* Film Description Skeleton */}
               <div className='space-y-2'>
                 <Skeleton className='h-5 w-10' />
-                <Skeleton className='h-12 w-80' />
+                <Skeleton className='h-12 w-60 md:w-80' />
                 <div className='flex items-center space-x-4'>
                   <Skeleton className='h-5 w-12' />
                   <Skeleton className='h-5 w-20' />
                 </div>
               </div>
               <div className='space-y-3'>              
-                <Skeleton className='h-5 w-180' />
-                <Skeleton className='h-5 w-180' />
-                <Skeleton className='h-5 w-180' />
-                <Skeleton className='h-5 w-180' />
+                <Skeleton className='h-5 w-72 md:w-90 lg:w-180 ' />
+                <Skeleton className='h-5 w-72 md:w-90 lg:w-180 ' />
+                <Skeleton className='h-5 w-72 md:w-90 lg:w-180' />
+                <Skeleton className='h-5 w-72 md:w-90 lg:w-180' />
               </div>
 
+              {/* Film Director and Cast Skeleton */}
               <div className='space-y-4'>
                 <div className='space-y-2'>
                   <Skeleton className='h-5 w-12' />
@@ -46,16 +48,18 @@ function MovieSkeleton() {
                   </div>
                 </div>
               </div>
-
+              
+              {/* Actions Button Skeleton */}
               <div className='flex space-x-4'>
-                <Skeleton className='h-10 w-38' />
-                <Skeleton className='h-10 w-38' />
+                <Skeleton className='h-10 w-34 md:w-38' />
+                <Skeleton className='h-10 w-34 md:w-38' />
               </div>
 
             </div>
-
+            
+            {/* Movie Poster Skeleton */}
             <div className='flex justify-center'>
-              <Skeleton className='h-150 w-95' />
+              <Skeleton className='h-150 w-70 md:w-95' />
             </div>
           </div>
         </div>

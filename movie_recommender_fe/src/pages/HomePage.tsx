@@ -149,11 +149,7 @@ const mostRecentList = [
   }
 ]
 
-type THomePageProps = {
-  handleInputFocus: () => void
-}
-
-function HomePage({ handleInputFocus }: THomePageProps) {
+function HomePage({ handleInputFocus }: { handleInputFocus: () => void }) {
   return (
     <>
       <section className='relative bg-gradient-to-r from-background to-muted/20'>

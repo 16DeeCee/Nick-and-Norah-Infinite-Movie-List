@@ -16,5 +16,6 @@ app.add_middleware(
 app.include_router(movie_router.router)
 app.include_router(search_router.router)
 
+
 if "__name__" == "__main__":
     uvicorn.run("main:app", host="localhost", port=9991, reload=True)

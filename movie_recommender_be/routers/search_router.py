@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from models.movie_models import MovieDesc, ArtistDetails
 from scripts.movies import SearchMovie
 from typing import List
@@ -7,6 +8,7 @@ router = APIRouter(
     prefix="/search",
     tags=["search"]
 )
+
 @router.get("/", response_model=List[MovieDesc])
 async def search_movies(query: str):
     print(query)

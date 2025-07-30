@@ -65,6 +65,7 @@ const CrewAvatars = ({ crew } : { crew: TPerson[] }) => {
 function MoviePage() {
   const { movieId } = useParams();
   const [ movieDetails, setMovieDetails ] = useState<TMovieDetails | null>(null)
+  // const [ errorDetails, setErrorDetails ] = useState<>(null)
 
   useEffect(() => {
     if (!movieId) return;
@@ -75,7 +76,7 @@ function MoviePage() {
     .then(res => {
       if (res.data) setMovieDetails(res.data)
     })
-    .catch(err => console.log(err))
+    // .catch(err => setErrorDetails(err.data))
 
     window.scrollTo(0, 0)
     
@@ -83,6 +84,9 @@ function MoviePage() {
 
   return (
     <>
+      {/* {errorDetails && (
+
+      )} */}
       { movieDetails ? (
       <>
       <section className='relative'>
@@ -137,6 +141,8 @@ function MoviePage() {
                 </div>
 
               </div>
+
+              {/* Movie Poster Section */}
               <div className='flex justify-center'>
                 <Card className='overflow-hidden py-0'>
                   <img

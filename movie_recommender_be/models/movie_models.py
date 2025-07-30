@@ -27,6 +27,6 @@ class MovieDetails(BaseModel):
 
 class ArtistDetails(BaseModel):
     biography: str
-    birthdate: str
-    place_of_birth: str
+    birthdate: Optional[str] = None
+    place_of_birth: Optional[str] = None
     deathday: Optional[str] = None

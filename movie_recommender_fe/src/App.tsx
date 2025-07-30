@@ -9,6 +9,17 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const MoviePage = lazy(() => import('./pages/MoviePage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 
+const ModSearchSkeleton = () => {
+  return (
+    <div className='container mx-auto px-4 py-8'>
+      <div className='space-y-6'>
+        <SearchSkeleton />
+      </div>
+    </div>
+    
+  )
+}
+
 function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -22,7 +33,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Suspense fallback={<>...</>}> <HomePage handleInputFocus={handleInputFocus} /> </Suspense>} />
           <Route path='/movie/:movieId' element={<Suspense fallback={<MovieSkeleton />}> <MoviePage /> </Suspense>} />
-          <Route path='/search' element={<Suspense fallback={<SearchSkeleton />}> <SearchPage /> </Suspense>} />
+          <Route path='/search' element={<Suspense fallback={<ModSearchSkeleton />}> <SearchPage /> </Suspense>} />
         </Routes>
       <Footer />
     </>

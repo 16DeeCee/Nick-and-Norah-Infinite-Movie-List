@@ -12,12 +12,12 @@ import {
   SelectItem,
   SelectTrigger, 
   SelectValue, 
- } from '@/components/ui/select';
+} from '@/components/ui/select';
+import SearchSkeleton from '@/components/skeletons/SearchSkeleton';
 import { useEffect, useMemo, useReducer, useState } from 'react';
 
 import type { ComponentProps } from 'react';
 import type { TMovieDesc } from '@/types/movie.types';
-import SearchSkeleton from '@/components/skeletons/SearchSkeleton';
 
 
 type SelectProps = ComponentProps<typeof Select>
@@ -205,7 +205,9 @@ function SearchPage() {
     };
 
     if (filterState.genreFilter !== 'All Genres') {
-      results = results.filter((movie) => movie.genres.some((g) => g.toLowerCase() === filterState.genreFilter.toLowerCase()))
+      results = results.filter((movie) => movie.genres.some((g) => (
+        g.toLowerCase() === filterState.genreFilter.toLowerCase()
+      )))
     };
 
     if (filterState.yearFilter !== 'All Years') {
@@ -251,13 +253,23 @@ function SearchPage() {
             <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
               <div>
                 <h2 className='text-2xl font-bold'>Search Results for {query}</h2>
-                <p>{filteredResults.length} {filteredResults.length <= 1 ? 'movie' : 'movies'} found</p> 
+                <p>
+                  {filteredResults.length} {filteredResults.length <= 1 ? 'movie' : 'movies'} found
+                </p>
               </div>
               <div className='space-x-2'>
-                <Button variant={viewMode === 'grid' ? 'default' : 'outline'} size='sm' onClick={() => setViewMode('grid')}>
+                <Button 
+                  variant={viewMode === 'grid' ? 'default' : 'outline'} 
+                  onClick={() => setViewMode('grid')}
+                  size='sm' 
+                >
                   <Grid className='h-4 w-4' />
                 </Button>
-                <Button variant={viewMode === 'list' ? 'default' : 'outline'} size='sm' onClick={() => setViewMode('list')}>
+                <Button 
+                  variant={viewMode === 'list' ? 'default' : 'outline'} 
+                  onClick={() => setViewMode('list')}
+                  size='sm'
+                >
                   <List className='h4 w-4' />
                 </Button>
               </div>
@@ -269,11 +281,25 @@ function SearchPage() {
                 <Filter className='h-4 w-4' />
                 <span className='text-sm font-medium'>Filters:</span>
               </div>
-              {<SelectButton items={sortItems} value={filterState.sortByFilter} onValueChange={e => handleFilterChange({sortByFilter: e}, 'set_sortby_filter')} />}
-              {<SelectButton items={genreItems} value={filterState.genreFilter} onValueChange={e => handleFilterChange({genreFilter: e}, 'set_genre_filter')} />}
-              {<SelectButton items={yearItems} value={filterState.yearFilter} onValueChange={e => handleFilterChange({yearFilter: e}, 'set_year_filter')} />}
+              {<SelectButton 
+                items={sortItems} 
+                value={filterState.sortByFilter} 
+                onValueChange={e => handleFilterChange({sortByFilter: e}, 'set_sortby_filter')}
+              />}
+              {<SelectButton 
+                items={genreItems} 
+                value={filterState.genreFilter} 
+                onValueChange={e => handleFilterChange({genreFilter: e}, 'set_genre_filter')}
+              />}
+              {<SelectButton 
+                items={yearItems} 
+                value={filterState.yearFilter} 
+                onValueChange={e => handleFilterChange({yearFilter: e}, 'set_year_filter')}
+              />}
             
-              {(filterState.sortByFilter !== 'Relevance' || filterState.genreFilter !== 'All Genres' || filterState.yearFilter !== 'All Years') && (
+              {(filterState.sortByFilter !== 'Relevance' || 
+                filterState.genreFilter !== 'All Genres' || 
+                filterState.yearFilter !== 'All Years') && (
                 <Button 
                   variant='outline'
                   size='sm'
@@ -288,7 +314,10 @@ function SearchPage() {
 
             {/* Search Results */}
             {!isLoading && filteredResults.length === 0 ? (
-              <ErrorText primaryText='No movies found' secondaryText='Try adjusting your search terms or filters' /> 
+              <ErrorText 
+                primaryText='No movies found' 
+                secondaryText='Try adjusting your search terms or filters' 
+              /> 
             ) : (
               viewMode === 'grid' ? (
                 <GridResults movieResults={filteredResults} />
